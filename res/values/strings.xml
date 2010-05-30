@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="printer_state">Состояние принтера</string>
+    <string name="cashbin_state">Состояние купироприемника</string>
+    <string name="cosum">Сумма</string>
+    
+    <string name="app_name">OSMP Monitor</string>
+    <string name="configure_title">Настройки</string>
+    <string name="configure_app">Настройте ваше приложение</string>
+    
+    <string name="request">Получить данные</string>
+    <string name="settings">Настройки</string>
+    <string name="exit">Выход</string>
+    
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="terminal">ID терминала</string>
+    
+    <string name="balance">Баланс</string>
+    <string name="overdraft">Овердрафт</string>
+    
+    <string name="network_error_title">Ошибка сети</string>
+    <string name="network_error_text">Возникла ошибка во время получения данных</string>
+    
+    <string name="request_error_title">Ошибка запроса</string>
+    <string name="request_error_text">Сервер вернул ошибку #</string>
+    
+    <string name="save">Сохранить</string>
+</resources>
