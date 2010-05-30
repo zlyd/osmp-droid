@@ -65,6 +65,22 @@ public class TerminalView extends TableRow
     cashbin_state.setText(strings.toString());
     layout.addView(cashbin_state,LayoutParams.FILL_PARENT);
     
+    TextView last_payment = new TextView(context);
+    strings.delete(0, strings.length());
+    strings.append(context.getString(R.string.last_activity));
+    strings.append(": ");
+    strings.append(terminal.lastActivity);
+    last_payment.setText(strings.toString());
+    layout.addView(last_payment,LayoutParams.FILL_PARENT);
+    
+    TextView last_activity = new TextView(context);
+    strings.delete(0, strings.length());
+    strings.append(context.getString(R.string.last_payment));
+    strings.append(": ");
+    strings.append(terminal.lastPayment);
+    last_activity.setText(strings.toString());
+    layout.addView(last_activity,LayoutParams.FILL_PARENT);
+    
     this.addView(image);
     this.addView(layout,LayoutParams.FILL_PARENT);
     

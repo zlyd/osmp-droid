@@ -2,6 +2,8 @@
 <resources>
     <string name="printer_state">Состояние принтера</string>
     <string name="cashbin_state">Состояние купироприемника</string>
+    <string name="last_payment">Последний платеж</string>
+    <string name="last_activity">Последняя активность</string>
     <string name="cosum">Сумма</string>
     
     <string name="app_name">OSMP Monitor</string>
