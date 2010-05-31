@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical"
     >
 
@@ -41,13 +41,13 @@
                   android:layout_margin="1dip"
                   android:background="@drawable/back"
                   >
-	    <TextView android:text="@string/overdraft"
+	    <TextView android:text="@string/cash"
 	              android:textSize="5pt"
 	              android:layout_width="wrap_content"
 	              android:layout_height="wrap_content"
                 android:textColor="#000"
 	    />
-	    <TextView android:id="@+id/overdraft_value"
+	    <TextView android:id="@+id/cash_value"
                 android:textSize="10pt"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -56,10 +56,14 @@
 	  </LinearLayout>
 </LinearLayout>
 
-<ScrollView android:id="@+id/main_scroll"
-				    android:layout_width="fill_parent"
+<ScrollView android:layout_width="fill_parent"
 				    android:layout_height="fill_parent"
 >
+  <TableLayout android:layout_width="fill_parent"
+               android:layout_height="wrap_content"
+               android:id="@+id/terminals_table"
+  >
+  </TableLayout>
 </ScrollView>
 
 </LinearLayout>

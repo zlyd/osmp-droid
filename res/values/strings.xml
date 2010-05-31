@@ -5,6 +5,7 @@
     <string name="last_payment">Последний платеж</string>
     <string name="last_activity">Последняя активность</string>
     <string name="cosum">Сумма</string>
+    <string name="full_info">Подробная информация</string>
     
     <string name="app_name">OSMP Monitor</string>
     <string name="configure_title">Настройки</string>
@@ -19,7 +20,7 @@
     <string name="terminal">ID терминала</string>
     
     <string name="balance">Баланс</string>
-    <string name="overdraft">Овердрафт</string>
+    <string name="cash">Наличность в терминалах</string>
     
     <string name="network_error_title">Ошибка сети</string>
     <string name="network_error_text">Возникла ошибка во время получения данных</string>
@@ -28,4 +29,25 @@
     <string name="request_error_text">Сервер вернул ошибку #</string>
     
     <string name="save">Сохранить</string>
+    
+    <string name="fullinfo_addr">Имя:</string>
+    <string name="fullinfo_tid">Номер терминала:</string>
+    <string name="fullinfo_aid">Номер агента:</string>
+    <string name="fullinfo_an">Наименование агента:</string>
+    <string name="fullinfo_cash">Cумма наличных:</string>
+    <string name="fullinfo_bonds">Число купюр:</string>
+    <string name="fullinfo_last_activity">Дата последнего ответа:</string>
+    <string name="fullinfo_last_payment">Дата последнего платежа:</string>
+    <string name="fullinfo_signal_level">Уровень сигнала:</string>
+    <string name="fullinfo_balance">Баланс сим карты:</string>
+    <string name="fullinfo_soft_version">Версия ПО:</string>
+    <string name="fullinfo_printer">Принтер: </string>
+    <string name="fullinfo_cashbin">Купюроприемник:</string>
+    <string name="fullinfo_bonds10">10ки:</string>
+    <string name="fullinfo_bonds50">50ки:</string>
+    <string name="fullinfo_bonds100">100ки:</string>
+    <string name="fullinfo_bonds500">500ки:</string>
+    <string name="fullinfo_bonds1000">1000е:</string>
+    <string name="fullinfo_bonds5000">5000е:</string>
+    <string name="fullinfo_pays_per_hour">Средние количество платежей в час:</string>
 </resources>

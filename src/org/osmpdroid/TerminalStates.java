@@ -1,8 +1,7 @@
 package org.osmpdroid;
 
 import java.util.HashMap;
-import java.util.Set;
-
+import java.util.Iterator;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -19,17 +18,19 @@ public class TerminalStates extends DefaultHandler
   
   protected HashMap<String,Terminal> terminals;
   protected int status;
-  private String balance;
-  private String overdraft;
+  private double balance;
+  private double overdraft;
   
   private int tagState;
   private int extraState;
   private StringBuilder text;
+  private int count;
   
   public TerminalStates()
   {
     terminals = new HashMap<String,Terminal>();
     text = new StringBuilder();
+    count=0;
   }
   
   @Override
@@ -37,6 +38,32 @@ public class TerminalStates extends DefaultHandler
   {
     tagState = TAG_NONE;
     text.delete(0, text.length());
+  }
+  
+  static private int getInt(Attributes attributes, String name, int def)
+  {
+    String value = attributes.getValue(name);
+    if(MainScreen.isEmptyString(value))
+      return(def);
+    return Integer.parseInt(value);
+  }
+  
+  static private int getInt(Attributes attributes, String name)
+  {
+    return(getInt(attributes,name,0));
+  }
+  
+  static private String getString(Attributes attributes, String name, String def)
+  {
+    String value = attributes.getValue(name);
+    if(MainScreen.isEmptyString(value))
+      return(def);
+    return value;
+  }
+  
+  static private String getString(Attributes attributes, String name)
+  {
+    return(getString(attributes, name, "unknown"));
   }
   
   @Override
@@ -54,43 +81,41 @@ public class TerminalStates extends DefaultHandler
       {
         terminal = new Terminal(tid,address);
         terminals.put(tid, terminal);
+        ++count;
       }
-      
-      String state = attributes.getValue("rs");
-      if (state!=null)
-        terminal.state = Integer.parseInt(state);
-      else
-        terminal.state = Terminal.STATE_ERROR;
+      // статус
+      terminal.state = getInt(attributes, "rs", Terminal.STATE_ERROR);
       // состояние принтера
-      state = attributes.getValue("rp");
-      if(state!=null)
-        terminal.printer_state = state;
-      else
-        terminal.printer_state = "none";
+      terminal.printer_state = getString(attributes, "rp", "none");
       // состояние купироприемника
-      state = attributes.getValue("rc");
-      if(state!=null)
-        terminal.cashbin_state = state;
-      else
-        terminal.cashbin_state = "none";
+      terminal.cashbin_state = getString(attributes, "rc", "none");
       // сумма
-      String sum = attributes.getValue("cosum");
-      if(sum!=null)
-        terminal.cosum = sum;
-      else
-        terminal.cosum = "unknown";
+      terminal.cash = getInt(attributes, "cs");
       // последняя активность
-      String lastActivity = attributes.getValue("lat");
-      if(lastActivity!=null)
-        terminal.lastActivity = lastActivity;
-      else
-        terminal.lastActivity = "unknown";
+      terminal.lastActivity = getString(attributes, "lat");
       // последний платеж
-      String lastPayment = attributes.getValue("lpd");
-      if(lastPayment!=null)
-        terminal.lastPayment = lastPayment;
-      else
-        terminal.lastPayment = "unknown";
+      terminal.lastPayment = getString(attributes, "lpd");
+      // Число купюр
+      terminal.bondsCount= getInt(attributes, "nc");
+      // Баланс сим карты
+      terminal.balance= getString(attributes,"ss");
+      // Уровень сигнала сим карты
+      terminal.bondsCount= getInt(attributes,"sl");
+      // Версия софта
+      terminal.softVersion = getString(attributes, "csoft");
+      // Модель принтера
+      terminal.printerModel   = getString(attributes,"pm");
+      terminal.cashbinModel   = getString(attributes,"dm");
+      terminal.bonds10count     = getInt(attributes,"b_co_10");
+      terminal.bonds50count     = getInt(attributes,"b_co_50");
+      terminal.bonds100count    = getInt(attributes,"b_co_100");
+      terminal.bonds500count    = getInt(attributes,"b_co_500");
+      terminal.bonds1000count   = getInt(attributes,"b_co_1000");
+      terminal.bonds5000count   = getInt(attributes,"b_co_5000");
+      terminal.bonds10000count  = getInt(attributes,"b_co_10000");
+      terminal.paysPerHour      = getString(attributes,"pays_per_hour");
+      terminal.agentId          = getString(attributes, "aid");
+      terminal.agentName        = getString(attributes, "an");
     }
     else if(localName.compareToIgnoreCase("result-code")==0)
       tagState = TAG_RESULT;
@@ -127,35 +152,43 @@ public class TerminalStates extends DefaultHandler
         break;
       case TAG_EXTRA:
         if(extraState == EXTRA_BALANCE)
-          balance = text.toString();
+        {
+          balance = Double.parseDouble(text.toString());
+        }
         else if(extraState == EXTRA_OVERDRAFT)
-          overdraft = text.toString();
+          overdraft = Double.parseDouble(text.toString());
         break;
     }
     tagState = TAG_NONE;
   }
   
-  public int Count()
+  public boolean isEmpty()
   {
-    Set<String> keys = terminals.keySet();
-    return (keys.toArray().length);
+    return(terminals.isEmpty());
   }
   
-  public String Balance()
+  public Iterator<String> iterator()
+  {
+    return(terminals.keySet().iterator());
+  }
+  
+  public Terminal at(String index)
+  {
+    return terminals.get(index);
+  }
+
+  public int Count()
+  {
+    return(count);
+  }
+  
+  public double Balance()
   {
     return(balance);
   }
   
-  public String Overdraft()
+  public double Overdraft()
   {
     return(overdraft);
-  }
-  
-  public Terminal Terminal(int index)
-  {
-    Set<String> keys = terminals.keySet();
-    if (keys.size()<=index)
-      return (null);
-    return (terminals.get(keys.toArray()[index]));
   }
 }

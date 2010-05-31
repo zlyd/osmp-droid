@@ -15,8 +15,12 @@
         <activity android:name=".Configure"
                   android:label="@string/settings">
         </activity>
+        
+        <activity android:name=".FullInfo"
+                  android:label="@string/full_info">
+        </activity>
 
     </application>
     <uses-permission android:name="android.permission.INTERNET" ></uses-permission>
-
+<uses-sdk android:minSdkVersion="4"></uses-sdk>
 </manifest> 

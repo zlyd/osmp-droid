@@ -11,9 +11,25 @@ public class Terminal
   public String cashbin_state;
   public String mobile_bill;
   public String lpd;
-  public String cosum;
+  public int cash;
   public String lastActivity;
   public String lastPayment;
+  public int bondsCount;
+  public String balance;
+  public int signalLevel;
+  public String softVersion;
+  public String printerModel;
+  public String cashbinModel;
+  public int bonds10count;
+  public int bonds50count;
+  public int bonds100count;
+  public int bonds500count;
+  public int bonds1000count;
+  public int bonds5000count;
+  public int bonds10000count;
+  public String paysPerHour;
+  public String agentId;
+  public String agentName;
   
   protected String address;
   protected String tid;
@@ -27,5 +43,10 @@ public class Terminal
   public String Address() 
   {
     return address;
+  }
+  
+  public String id()
+  {
+    return(tid);
   }
 }

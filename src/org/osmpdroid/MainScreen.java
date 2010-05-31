@@ -1,14 +1,17 @@
 package org.osmpdroid;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup.LayoutParams;
-import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TextView;
 
@@ -23,21 +26,35 @@ public class MainScreen extends Activity implements ITerminalDataReceiver
   public static final String PREFS_ALL = "osmp-monitor-prefs";
  
   private TerminalStates terminals;
+  private HashMap<String,TerminalView> views;
   private String login;
   private String password;
   private String terminal;
+  
+  public MainScreen()
+  {
+    terminals = new TerminalStates();
+    views  = new HashMap<String, TerminalView>();
+  }
   
   public static boolean isEmptyString(String text)
   {
     return(text==null || text.length()==0);
   }
   
+  private static String moneyString(double money)
+  {
+    String result = String.format("%(.2f", money);
+    int i = result.length()-1;
+    while(result.charAt(i)=='0')
+      --i;
+    return(result.substring(0, i+1));
+  }
   /** Called when the activity is first created. */
   @Override
   public void onCreate(Bundle savedInstanceState)
   {
     super.onCreate(savedInstanceState);
-    terminals = new TerminalStates();
     setContentView(R.layout.main);
     
     SharedPreferences prefs = getSharedPreferences(PREFS_ALL,MODE_PRIVATE);
@@ -47,48 +64,86 @@ public class MainScreen extends Activity implements ITerminalDataReceiver
     
     if(isEmptyString(login))
     {
-      AlertDialog alert = new AlertDialog.Builder(this).create();
+      AlertDialog alert = new AlertDialog.Builder(this)
+                                         .setPositiveButton(getString(R.string.settings), new DialogInterface.OnClickListener() {
+                                           public void onClick(DialogInterface dialog, int id) 
+                                           {
+                                             callSettings();
+                                           }
+                                         }).create();
       alert.setTitle(getString(R.string.configure_title));
       alert.setMessage(getString(R.string.configure_app));
       alert.show();
     }
     else
     {
-      Request();
+      if(terminals.isEmpty())
+        Request();
+      else
+        Draw();
     }
   }
   
   protected void Draw()
   {
-    if(terminals.status!=0)
-    {
-      AlertDialog alert = new AlertDialog.Builder(this).create();
-      alert.setTitle(getString(R.string.request_error_title));
-      alert.setMessage(String.format("%s (%d)", getString(R.string.request_error_text),terminals.status));
-      alert.show();
-      return;
-    }
-    
     TextView balance = (TextView) findViewById(R.id.balance_value);
-    balance.setText(terminals.Balance());
-    TextView overdraft = (TextView) findViewById(R.id.overdraft_value);
-    overdraft.setText(terminals.Overdraft());
+    double value = terminals.Balance();
+    String text = moneyString(value);
+    balance.setText(text);
     
-    TableLayout layout = new TableLayout (this);
-    int length = terminals.Count();
+    TableLayout layout = (TableLayout) findViewById(R.id.terminals_table);
+    layout.removeAllViews();
+    int sum = 0;
+    Iterator<String> iter = terminals.iterator();
+    ArrayList<TerminalView> red_list = new ArrayList<TerminalView>();
+    ArrayList<TerminalView> yellow_list = new ArrayList<TerminalView>();
+    ArrayList<TerminalView> green_list = new ArrayList<TerminalView>();
 
-    for(int j=0;j<1;++j)
-    for (int i=0;i<length;++i)
+    while(iter.hasNext())
     {
-      Terminal terminal = terminals.Terminal(i);
-      TerminalView view = new TerminalView(this, terminal);
-
-      layout.addView(view,LayoutParams.FILL_PARENT);
+      Terminal terminal = terminals.at(iter.next());
+      if(terminal!=null)
+      {
+        TerminalView view = views.get(terminal.id()); 
+        if(view==null)
+        {
+          view = new TerminalView(this, terminal);
+          views.put(terminal.id(), view);
+        }
+        sum+=terminal.cash;
+        switch(terminal.state)
+        {
+          case Terminal.STATE_OK:
+            green_list.add(view);
+            break;
+          case Terminal.STATE_WARRNING:
+            yellow_list.add(view);
+            break;
+          default:
+            red_list.add(view);
+        }
+      }
     }
-    ScrollView view = (ScrollView)findViewById(R.id.main_scroll);
-    if(view.getChildCount()!=0)
-      view.removeViewAt(0);
-    view.addView(layout);
+    // Красный лист
+    Iterator<TerminalView> view_iter = red_list.iterator();
+    while(view_iter.hasNext())
+    {
+      layout.addView(view_iter.next());
+    }
+    // Желтый лист
+    view_iter = yellow_list.iterator();
+    while(view_iter.hasNext())
+    {
+      layout.addView(view_iter.next());
+    }
+    // Зеленый лист
+    view_iter = green_list.iterator();
+    while(view_iter.hasNext())
+    {
+      layout.addView(view_iter.next());
+    }
+    TextView cash = (TextView) findViewById(R.id.cash_value);
+    cash.setText(String.format("%s", sum));
   }
   
   @Override
@@ -111,13 +166,18 @@ public class MainScreen extends Activity implements ITerminalDataReceiver
         this.finish();
         return(true);
       case SETTINGS_ID:
-        Intent intent = new Intent(this,Configure.class);
-        intent.putExtra("login", login);
-        intent.putExtra("terminal", terminal);
-        startActivityForResult(intent, ACTIVITY_CONFIGURE);
+        callSettings();
         return(true);
     }
     return super.onOptionsItemSelected(item); 
+  }
+  
+  private void callSettings()
+  {
+    Intent intent = new Intent(this,Configure.class);
+    intent.putExtra("login", login);
+    intent.putExtra("terminal", terminal);
+    startActivityForResult(intent, ACTIVITY_CONFIGURE); 
   }
   
   public void onActivityResult(int requestCode,int resultCode, Intent intent)
@@ -160,7 +220,24 @@ public class MainScreen extends Activity implements ITerminalDataReceiver
   @Override
   public void dataReceived()
   {
-    Draw();
+    if(terminals.status!=0)
+    {
+      AlertDialog alert = new AlertDialog.Builder(this)
+                          .setPositiveButton("Ok", new DialogInterface.OnClickListener() 
+                            {
+                              public void onClick(DialogInterface dialog, int id) 
+                              {
+                               dialog.cancel();
+                              }
+                            })
+                          .create();
+      alert.setTitle(getString(R.string.request_error_title));
+      alert.setMessage(String.format("%s (%d)", getString(R.string.request_error_text),terminals.status));
+      alert.show();
+      return;
+    }
+    else
+      Draw();
   }
 
   @Override
